@@ -24,7 +24,7 @@ func (p *processor) Init(numWorker int, _, _ bool) {
 
 func (p *processor) ProcessBatch(b targets.Batch, doLoad bool) (uint64, uint64) {
 	batch := b.(*batch)
-	stmt := string(batch.buf.Bytes())
+	stmt := batch.buf.s
 
 	// Execute each batch, which is already in the format of an SQL command
 	if doLoad {
@@ -39,9 +39,9 @@ func (p *processor) ProcessBatch(b targets.Batch, doLoad bool) (uint64, uint64) 
 	rowCnt := batch.rows
 
 	// Return the batch buffer to the pool
-	stmt = ""
 	// batch.buf.Reset()
-	// bufPool.Put(batch.buf)
+	batch.buf.s = ""
+	bufPool.Put(batch.buf)
 	return metricCnt, uint64(rowCnt)
 }
 

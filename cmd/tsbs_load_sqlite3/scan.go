@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"bytes"
 	"database/sql"
 	"fmt"
 	"strconv"
@@ -76,7 +75,7 @@ func (d *fileDataSource) Headers() *common.GeneratedDataHeaders {
 }
 
 type batch struct {
-	buf     *bytes.Buffer
+	buf     *Statement
 	rows    uint
 	metrics uint64
 }
@@ -91,6 +90,7 @@ func (b *batch) Append(item data.LoadedPoint) {
 	// Extract the number of metrics, which is a number followed by '^'
 	args := strings.Split(that, "^")
 	if len(args) != 2 {
+		fmt.Println(args)
 		fatal(errNotTwoTuplesFmt, len(args))
 		return
 	}
@@ -107,12 +107,15 @@ func (b *batch) Append(item data.LoadedPoint) {
 
 	b.metrics += uint64(metrics)
 
-	b.buf.Write([]byte(args[0]))
-	b.buf.Write([]byte("\n"))
+	b.buf.s += args[0]
+	b.buf.s += "\n"
+
+	// b.buf.Write([]byte(args[0]))
+	// b.buf.Write([]byte("\n"))
 }
 
 type factory struct{}
 
 func (f *factory) New() targets.Batch {
-	return &batch{buf: bufPool.Get().(*bytes.Buffer)}
+	return &batch{buf: bufPool.Get().(*Statement)}
 }

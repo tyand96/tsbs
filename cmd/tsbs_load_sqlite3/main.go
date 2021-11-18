@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"log"
 	"sync"
@@ -16,6 +15,11 @@ import (
 	"github.com/timescale/tsbs/pkg/targets/constants"
 	"github.com/timescale/tsbs/pkg/targets/initializers"
 )
+
+// Struct for the statements
+type Statement struct {
+	s string
+}
 
 // Global vars
 var (
@@ -62,9 +66,15 @@ func init() {
 func main() {
 	bufPool = sync.Pool{
 		New: func() interface{} {
-			return bytes.NewBuffer(make([]byte, 0, 4*1024*1024))
+			return new(Statement)
 		},
 	}
+
+	// bufPool = sync.Pool{
+	// 	New: func() interface{} {
+	// 		return bytes.NewBuffer(make([]byte, 0, 4*1024*1024))
+	// 	},
+	// }
 
 	benchmark, err := NewBenchmark("SQLite3DB", &source.DataSourceConfig{
 		Type: source.FileDataSourceType,
