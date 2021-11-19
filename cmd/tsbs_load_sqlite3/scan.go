@@ -63,7 +63,7 @@ func (d *fileDataSource) Headers() *common.GeneratedDataHeaders {
 		if strings.HasPrefix(d.scanner.Text(), "CREATE") {
 			// Remove the '^' character
 			line := strings.Split(d.scanner.Text(), "^")
-			// Make sure that there are 2 peices
+			// // Make sure that there are 2 peices
 			if len(line) != 2 {
 				panic("There are not 2 pieces in the line.")
 			}
@@ -87,6 +87,12 @@ func (b *batch) Len() uint {
 func (b *batch) Append(item data.LoadedPoint) {
 	that := item.Data.(string)
 
+	// if strings.HasPrefix(that, "CREATE") {
+	// 	return
+	// }
+
+	// b.buf.s += that
+
 	// Extract the number of metrics, which is a number followed by '^'
 	args := strings.Split(that, "^")
 	if len(args) != 2 {
@@ -108,7 +114,6 @@ func (b *batch) Append(item data.LoadedPoint) {
 	b.metrics += uint64(metrics)
 
 	b.buf.s += args[0]
-	b.buf.s += "\n"
 
 	// b.buf.Write([]byte(args[0]))
 	// b.buf.Write([]byte("\n"))
